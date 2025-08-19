@@ -26,7 +26,9 @@ csv_writer.writerow(["Timestamp (s)", "Voltage (V)"])  # Header row
 # Configure DAQ task
 with nidaqmx.Task() as task:
     # Replace cDAQ1Mod1 with your actual device/module name from NI MAX
-    task.ai_channels.add_ai_voltage_chan("cDAQ1Mod1/ai0", min_val=-10.0, max_val=10.0)
+    task.ai_channels.add_ai_voltage_chan("cDAQ2Mod1/ai0", min_val=-10.0, max_val=10.0)
+    task.ai_channels.add_ai_voltage_chan("cDAQ2Mod1/ai1", min_val=-10.0, max_val=10.0)
+    task.ai_channels.add_ai_voltage_chan("cDAQ2Mod1/ai3", min_val=-10.0, max_val=10.0)
 
     # Set timing: 1000 samples per second, continuous
     task.timing.cfg_samp_clk_timing(rate=1000, sample_mode=AcquisitionType.CONTINUOUS)
