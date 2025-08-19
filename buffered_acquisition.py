@@ -18,7 +18,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 # Choose your channels here
-channels = ["cDAQ1Mod1/ai0", "cDAQ1Mod1/ai1", "cDAQ1Mod1/ai3"]
+channels = ["cDAQ2Mod1/ai0", "cDAQ2Mod1/ai1", "cDAQ2Mod1/ai3"]
 
 # Acquisition settings
 sample_rate = 1000  # Hz
