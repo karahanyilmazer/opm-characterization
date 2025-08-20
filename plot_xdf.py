@@ -125,33 +125,45 @@ for tick_time in time_ticks:
 
 # %%
 fig, axs = plt.subplots(3, 2, figsize=(16, 8))
-axs = axs.flatten()
 
-for i, ch in enumerate(range(n_chs)):
-    row = i // 2  # 0 for top, 1 for middle, 2 for bottom
-    col = i % 2  # 0 for left, 1 for right
-    color = row_colors[row]
-    axs[i].plot(
-        data[ch, samples_to_skip:samples_to_plot],
-        color=color,
-    )
+# Channel mapping: first 3 channels on left (Inside), second 3 on right (Outside)
+axis_labels = ["X-axis", "Y-axis", "Z-axis"]
+column_labels = ["Inside", "Outside"]
 
-    # Y-label only for left column
-    if col == 0:
-        axs[i].set_ylabel("Amplitude (V)")
+for row in range(3):  # 3 rows for x, y, z axes
+    for col in range(2):  # 2 columns for Inside/Outside
+        ch = row + col * 3  # Channel mapping: 0,1,2 for left col; 3,4,5 for right col
 
-    # Set custom time ticks
-    axs[i].set_xticks(time_tick_indices)
+        if ch < n_chs:  # Make sure channel exists
+            color = row_colors[row]
+            axs[row, col].plot(
+                data[ch, samples_to_skip:samples_to_plot],
+                color=color,
+            )
 
-    # X-label only for bottom row
-    if row == 2:
-        axs[i].set_xlabel("Time (HH:MM)")
-        axs[i].set_xticklabels([dt.strftime("%H:%M") for dt in time_ticks], rotation=45)
-    else:
-        axs[i].set_xticklabels([])
+            # Y-label only for left column
+            if col == 0:
+                axs[row, col].set_ylabel(f"{axis_labels[row]} Amplitude (V)")
 
-    axs[i].grid(True)
-    axs[i].set_title(f"Ch{ch+1}")
+            # Set custom time ticks
+            axs[row, col].set_xticks(time_tick_indices)
+
+            # X-label only for bottom row
+            if row == 2:
+                axs[row, col].set_xlabel("Time (HH:MM)")
+                axs[row, col].set_xticklabels(
+                    [dt.strftime("%H:%M") for dt in time_ticks], rotation=45
+                )
+            else:
+                axs[row, col].set_xticklabels([])
+
+            axs[row, col].grid(True)
+
+            # Title: column label for top row, axis label for others
+            if row == 0:
+                axs[row, col].set_title(f"{column_labels[col]}\n{axis_labels[row]}")
+            else:
+                axs[row, col].set_title(f"{axis_labels[row]}")
 
 plt.tight_layout()
 plt.show()
