@@ -102,17 +102,27 @@ data = data.T  # Transpose to have (channels x timestamps)
 n_chs, n_samples = data.shape
 
 print(f"Stream '{stream['info']['name'][0]}' has shape {data.shape}")
+print("Statistics Before Conversion:")
+print(f"Min: {data.min(axis=1)}")
+print(f"Max: {data.max(axis=1)}")
+print(f"Mean: {data.mean(axis=1)}")
+print(f"Std: {data.std(axis=1)}")
 
+# %%
 # Convert voltage to nanoTesla
 # First sensor (channels 0-2): 7 mT/V = 7,000,000 nT/V
 # Second sensor (channels 3-5): 10 mT/V = 10,000,000 nT/V
-conversion_factors = np.array([7e6, 7e6, 7e6, 10e6, 10e6, 10e6])  # nT/V
+conversion_factors = np.array([[7e6, 7e6, 7e6, 10e6, 10e6, 10e6]]).T  # nT/V
 
 # Apply conversion to each channel
-for ch in range(min(n_chs, len(conversion_factors))):
-    data[ch, :] = data[ch, :] * conversion_factors[ch]
+data *= conversion_factors
 
 print("Data converted from V to nT")
+print("Statistics After Conversion:")
+print(f"Min: {data.min(axis=1)}")
+print(f"Max: {data.max(axis=1)}")
+print(f"Mean: {data.mean(axis=1)}")
+print(f"Std: {data.std(axis=1)}")
 
 # %%
 # Plot each channel
