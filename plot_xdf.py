@@ -5,6 +5,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyxdf
 
+plt.rcParams.update(
+    {
+        "font.size": 14,  # Base font size
+        "axes.titlesize": 16,  # Title font size
+        "axes.labelsize": 14,  # Axis label font size
+        "xtick.labelsize": 12,  # X-axis tick label size
+        "ytick.labelsize": 12,  # Y-axis tick label size
+    }
+)
+
 
 # %%
 def get_wall_clock_time(timestamps):
@@ -93,6 +103,17 @@ n_chs, n_samples = data.shape
 
 print(f"Stream '{stream['info']['name'][0]}' has shape {data.shape}")
 
+# Convert voltage to nanoTesla
+# First sensor (channels 0-2): 7 mT/V = 7,000,000 nT/V
+# Second sensor (channels 3-5): 10 mT/V = 10,000,000 nT/V
+conversion_factors = np.array([7e6, 7e6, 7e6, 10e6, 10e6, 10e6])  # nT/V
+
+# Apply conversion to each channel
+for ch in range(min(n_chs, len(conversion_factors))):
+    data[ch, :] = data[ch, :] * conversion_factors[ch]
+
+print("Data converted from V to nT")
+
 # %%
 # Plot each channel
 samples_to_skip = 0
@@ -124,7 +145,8 @@ for tick_time in time_ticks:
         time_tick_indices.append(sample_index)
 
 # %%
-fig, axs = plt.subplots(3, 2, figsize=(16, 8))
+# Set font sizes
+fig, axs = plt.subplots(3, 2, figsize=(20, 12))
 
 # Channel mapping: first 3 channels on left (Inside), second 3 on right (Outside)
 axis_labels = ["X-axis", "Y-axis", "Z-axis"]
@@ -143,7 +165,7 @@ for row in range(3):  # 3 rows for x, y, z axes
 
             # Y-label only for left column
             if col == 0:
-                axs[row, col].set_ylabel(f"{axis_labels[row]} Amplitude (V)")
+                axs[row, col].set_ylabel(f"{axis_labels[row]} Amplitude (nT)")
 
             # Set custom time ticks
             axs[row, col].set_xticks(time_tick_indices)
@@ -166,6 +188,7 @@ for row in range(3):  # 3 rows for x, y, z axes
                 axs[row, col].set_title(f"{axis_labels[row]}")
 
 plt.tight_layout()
+plt.savefig("opm_characterization_plot.png")
 plt.show()
 
 # %%
