@@ -110,9 +110,11 @@ print(f"Std: {data.std(axis=1)}")
 
 # %%
 # Convert voltage to nanoTesla
-# First sensor (channels 0-2): 7 mT/V = 7,000,000 nT/V
-# Second sensor (channels 3-5): 10 mT/V = 10,000,000 nT/V
-conversion_factors = np.array([[7e6, 7e6, 7e6, 10e6, 10e6, 10e6]]).T  # nT/V
+# First sensor (channels 0-2): 1 µT/V = 1000 nT/V
+# Second sensor (channels 3-5): 1 µT/V = 1000 nT/V
+conv_factor_1 = 7e3  # Sensor 1
+conv_factor_2 = 10e3  # Sensor 2
+conversion_factors = np.array([[conv_factor_1] * 3 + [conv_factor_2] * 3]).T  # nT/V
 
 # Apply conversion to each channel
 data *= conversion_factors
