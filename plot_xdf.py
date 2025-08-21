@@ -4,6 +4,7 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pyxdf
+from palettable.colorbrewer.qualitative import Set1_3
 
 plt.rcParams.update(
     {
@@ -157,50 +158,45 @@ for tick_time in time_ticks:
         time_tick_indices.append(sample_index)
 
 # %%
-# Set font sizes
-fig, axs = plt.subplots(3, 2, figsize=(20, 12))
+axis_labels = [r"$B_{x}$", r"$B_{y}$", r"$B_{z}$"]
+column_labels = ["Inside MSR", "Outside"]
+colors = Set1_3.mpl_colors
 
-# Channel mapping: first 3 channels on left (Inside), second 3 on right (Outside)
-axis_labels = ["X-axis", "Y-axis", "Z-axis"]
-column_labels = ["Inside", "Outside"]
+fig, axs = plt.subplots(3, 2, figsize=(20, 12))
 
 for row in range(3):  # 3 rows for x, y, z axes
     for col in range(2):  # 2 columns for Inside/Outside
         ch = row + col * 3  # Channel mapping: 0,1,2 for left col; 3,4,5 for right col
 
-        if ch < n_chs:  # Make sure channel exists
-            color = row_colors[row]
-            axs[row, col].plot(
-                data[ch, samples_to_skip:samples_to_plot],
-                color=color,
+        axs[row, col].plot(
+            data[ch, samples_to_skip : samples_to_skip + samples_to_plot],
+            color=colors[row],
+        )
+
+        # Y-label only for left column
+        if col == 0:
+            axs[row, col].set_ylabel(f"{axis_labels[row]} [nT]")
+
+        # Set custom time ticks
+        axs[row, col].set_xticks(time_tick_indices)
+
+        # X-label only for bottom row
+        if row == 2:
+            axs[row, col].set_xlabel("Time [HH:MM]")
+            axs[row, col].set_xticklabels(
+                [dt.strftime("%H:%M") for dt in time_ticks], rotation=45
             )
+        else:
+            axs[row, col].set_xticklabels([])
 
-            # Y-label only for left column
-            if col == 0:
-                axs[row, col].set_ylabel(f"{axis_labels[row]} Amplitude (nT)")
+        # Title only for top row
+        if row == 0:
+            axs[row, col].set_title(f"{column_labels[col]}")
 
-            # Set custom time ticks
-            axs[row, col].set_xticks(time_tick_indices)
-
-            # X-label only for bottom row
-            if row == 2:
-                axs[row, col].set_xlabel("Time (HH:MM)")
-                axs[row, col].set_xticklabels(
-                    [dt.strftime("%H:%M") for dt in time_ticks], rotation=45
-                )
-            else:
-                axs[row, col].set_xticklabels([])
-
-            axs[row, col].grid(True)
-
-            # Title: column label for top row, axis label for others
-            if row == 0:
-                axs[row, col].set_title(f"{column_labels[col]}\n{axis_labels[row]}")
-            else:
-                axs[row, col].set_title(f"{axis_labels[row]}")
+        axs[row, col].grid(True)
 
 plt.tight_layout()
-plt.savefig("opm_characterization_plot.png")
+plt.savefig(f"img/opm_characterization_plot.png")
 plt.show()
 
 # %%
