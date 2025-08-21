@@ -129,9 +129,30 @@ print(f"Std: {data.std(axis=1)}")
 
 # %%
 # Plot each channel
-samples_to_skip = 0
+samples_to_skip = 220000  # About the first two minutes to crop large deviations
 samples_to_plot = n_samples
-x_plot = clock_times[samples_to_skip:samples_to_plot]
+
+# Check if the range is valid
+if samples_to_skip >= n_samples:
+    print(
+        f"Warning: samples_to_skip ({samples_to_skip}) >= total samples ({n_samples})"
+    )
+    samples_to_skip = 0
+
+if samples_to_skip + samples_to_plot > n_samples:
+    print(f"Warning: Range extends beyond data. Adjusting samples_to_plot.")
+    samples_to_plot = n_samples - samples_to_skip
+
+if samples_to_plot <= 0:
+    print(f"Error: Invalid plot range. Setting to plot all data.")
+    samples_to_skip = 0
+    samples_to_plot = n_samples
+
+print(
+    f"Plotting samples {samples_to_skip} to {samples_to_skip + samples_to_plot} out of {n_samples}"
+)
+
+x_plot = clock_times[samples_to_skip : samples_to_skip + samples_to_plot]
 
 # Set time interval for x-axis ticks
 # Options: 60 (hourly), 30 (half-hourly), 15 (quarter-hourly)
